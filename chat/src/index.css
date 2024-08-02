@@ -1,0 +1,45 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @import url('/chat/public/media/wallapaper.jpeg'); */
+
+
+body{
+  background: rgb(193, 221, 232);
+}
+
+.profilr{
+  width: 80px;
+ height: 80px;
+}
+#myaccount {
+  border-bottom: 1px solid black;
+}
+#messagebox .col-md-8{
+  display: flex;
+  flex-direction: column;
+ padding: 0px 0px;
+ height: 99.9vh;
+  background-color: rgb(72, 218, 218);
+}
+
+
+.messagebox {
+  background-image: url('../public/media/wallapaper.jpeg');
+  background-color: rgba(96, 99, 99, 0.397) !important;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+ 
+}
+
+@media (max-width:767px) {
+  
+
+}
+
+#messagebox .col-md-8{
+  /* background-image: url('/chat/public/media/wallapaper.jpeg'),; */
+}
