@@ -6,6 +6,8 @@ import { logout, setOnlineUser } from '../redux/user/useSlice'
 import Editeprofile from './Editeprofile'
 import Searchpage from './Searchpage'
 import { FiArrowUpLeft } from "react-icons/fi";
+import { FaVideo } from "react-icons/fa";
+import { FaImage } from "react-icons/fa";
 const MyAccount = React.lazy(() => import('./MyAccount'))
 
 
@@ -17,13 +19,49 @@ function Left() {
   const [userdata, setUserdata] = useState('')
   const [editepage, setEditepage] = useState(false)
   const [alluser, setAlluser] = useState([])
-  const user = useSelector(state => state.user)
+  const user = useSelector(state => state?.user)
+
+  const sokectConnection = useSelector(state => state?.user?.sokectConnection)
+
+
   useEffect(() => {
     let userdatalocal = JSON.parse(localStorage.getItem('userdata'))
     if (userdatalocal) {
       setUserdata(userdatalocal)
     }
-  }, [user])
+    if (sokectConnection) {
+      sokectConnection.emit('sidebar', userdatalocal?._id)
+
+      sokectConnection.on('converstion', (data) => {
+        console.log("converstion", data);
+
+        const ConverstionUserData = data.map((converstionUser, index) => {
+
+
+          if (converstionUser?.sender?._id === converstionUser?.receiver?._id) {
+            return {
+              ...converstionUser,
+              userDetails: converstionUser.sender
+            }
+          } else if (converstionUser?.receiver?._id !== userdatalocal?._id) {
+            return {
+              ...converstionUser,
+              userDetails: converstionUser.receiver
+            }
+          } else {
+            return {
+              ...converstionUser,
+              userDetails: converstionUser.sender
+            }
+          }
+
+        })
+        setAlluser(ConverstionUserData)
+
+
+      })
+    }
+  }, [user, sokectConnection])
 
 
 
@@ -32,16 +70,16 @@ function Left() {
     dispatch(logout())
     localStorage.removeItem('token')
     localStorage.removeItem('userdata')
-    
+
     navigate('/')
 
   }
 
   // searchpage
- 
+
   const [searchpage, setSearchpage] = useState(false)
 
-  let fusecall=useCallback(()=>{
+  let fusecall = useCallback(() => {
     return setSearchpage(false)
   })
 
@@ -55,7 +93,7 @@ function Left() {
                 <i className="bi bi-chat-dots-fill " title='chat'></i>
               </NavLink>
 
-              <div onClick={() => {setSearchpage(true)}} className='text-xl  hover:bg-slate-400 mt-3 w-full cursor-pointer'>
+              <div onClick={() => { setSearchpage(true) }} className='text-xl  hover:bg-slate-400 mt-3 w-full cursor-pointer'>
                 <i className="bi bi-person-plus-fill   text-xl mt-3"></i>
               </div>
 
@@ -84,29 +122,80 @@ function Left() {
           <div className='sm:w-[100%] md:w-[40%] lg:[5%] xl:w-[33%] border
             h-screen pl-1  bg-slate-100'>
             <Suspense fallback={<h1>loading.....</h1>}>
-              <MyAccount  data={userdata}/>
+              <MyAccount data={userdata} />
 
               <div className='bg-slate-100 h-[69vh] overflow-x-hidden overflow-y-auto scrollbar'>
-              <h1 className='font-bold text-2xl '>Messages</h1>
-              
+                <h1 className='font-bold text-2xl '>Messages</h1>
+
                 <div>
-                 
+
                   <div className='text-center mt-10'>
                     {
-                     
-                      alluser.length===0&&(
+
+                      alluser.length === 0 && (
                         <div>
-                        <div className='flex justify-center items-center my-4 text-slate-500'>
-                        <FiArrowUpLeft size={50}/>
-                        </div>
-                        <p className='text-lg text-center text-slate-400'>Explore users to start <br/> a conversation with</p>
+                          <div className='flex justify-center items-center my-4 text-slate-500'>
+                            <FiArrowUpLeft size={50} />
+                          </div>
+                          <p className='text-lg text-center text-slate-400'>Explore users to start <br /> a conversation with</p>
                         </div>
                       )
                     }
-                        
+
+                    {
+                      alluser.map((conv, index) => {
+                        return (
+                          <NavLink to={`/dashborad/${conv?.userDetails?._id}`} key={conv?._id} className='flex items-center gap-2 bg-slate-300 mt-2 hover:bg-slate-400 rounded-full p-2 cursor-pointer bor' >
+                            <div>
+                              <Avatar
+                                imgurl={conv?.userDetails?.profileimg}
+                                name={conv?.userDetails?.fullname}
+                                width={40}
+                                height={40}
+                              />
+                            </div>
+                            <div className=' text-left'>
+                              <h3 className='text-ellipsis font-semibold text-base line-clamp-1 m-0'>{conv?.userDetails?.fullname}</h3>
+                              <div className='text-slate-600 text-sm flex items-center gap-1'>
+
+                                <div className='flex items-center gap-1'>
+                                  {
+                                    conv.lastMsg?.imgUrl && (
+                                      <div className='flex items-center gap-1'>
+                                        <span><FaImage size={18} /></span>
+                                        {!conv?.lastMsg?.text && <span>Image</span>}
+                                      </div>
+                                    )
+                                  }
+                                  {
+                                    conv.lastMsg?.videoUrl && (
+                                      <div className='flex items-center gap-1'>
+                                        <span><FaImage size={18} /></span>
+                                        {!conv?.lastMsg?.text && <span>Video</span>}
+                                      </div>
+                                    )
+                                  }
+                                </div>
+
+                                <p className='text-ellipsis line-clamp-1'>{conv?.lastMsg?.text}</p>
+                              </div>
+                            </div>
+                            {
+                              Boolean(conv?.unseenMesaage) && (
+                                <p className='text-xs w-8 h-8 flex justify-center items-center relative right-3 ml-auto p-1 bg-blue-600 text-white font-semibold rounded-full'>{conv?.unseenMesaage}</p>
+
+                              )
+                            }
+
+
+                          </NavLink>
+                        )
+                      })
+                    }
+
                   </div>
                 </div>
-                
+
               </div>
 
             </Suspense>
@@ -114,26 +203,26 @@ function Left() {
           </div>
           <div className='bg-slate-300 text-3xl md:w-[100%] sm:w-[100%] flex flex-col justify-center items-center  lg:w-[100%] xl:w-[62%]'>
 
-                      <h1>Chat App</h1>
-                      <p>Select user to send message</p>
-                      </div> 
+            <h1>Chat App</h1>
+            <p>Select user to send message</p>
+          </div>
 
         </div>
         {/* edite parofile page */}
         {
           editepage && (
-            <Editeprofile onclose={ () =>setEditepage(false)} data={userdata} />
+            <Editeprofile onclose={() => setEditepage(false)} data={userdata} />
           )
         }
       </div>
 
 
-{/* // searchpage contect */}
+      {/* // searchpage contect */}
 
       <div >
         {
           searchpage && (
-            <Searchpage onclose={fusecall}  />
+            <Searchpage onclose={fusecall} />
           )
         }
       </div>

@@ -20,7 +20,7 @@ let MessageSchema=new mongoose.Schema({
     mesByUserId:{
         type:mongoose.Schema.ObjectId,
         required:true,
-        ref:"User"
+        ref:"auth"
     }
     
 },{
@@ -31,12 +31,12 @@ let ConversationSchema= new mongoose.Schema({
     sender:{
         type:mongoose.Schema.ObjectId,
         required:true,
-        ref:"User"
+        ref:"auth"
     },
     receiver:{
         type:mongoose.Schema.ObjectId,
         required:true,
-        ref:"User"
+        ref:"auth"
     },
     messages:[
         {

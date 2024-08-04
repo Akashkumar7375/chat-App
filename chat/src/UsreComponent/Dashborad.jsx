@@ -16,6 +16,7 @@ function Dashborad() {
     const[userdata,setUserdata]=useState('')
     const user=useSelector(state=>state?.user) 
     const data=useSelector(state=>state.user?.onlineUser)
+    let token=JSON.parse(localStorage.getItem('token'))
     var navigate=useNavigate()
     let dispatch=useDispatch()
   
@@ -53,7 +54,11 @@ function Dashborad() {
           }
       },[user])
      
-      
+      if(!token){
+        navigate('/dashborad/')
+      }else{
+
+     
           return (
             <>
               <div className='w-[100%]  h-screen flex'>
@@ -74,7 +79,7 @@ function Dashborad() {
               </div>
             </>
           )
-        
+      }
        
 }
 

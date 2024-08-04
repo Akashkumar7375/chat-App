@@ -6,7 +6,8 @@ const morgan=require('morgan')
 require('../backend/ConnectionsDB/DB')
 const authRouter=require('../backend/Router/AuthRouter')
 const userRouter =require('./Router/UserRouter')
-
+const fs = require('fs');
+const path = require('path');
 const{app,server}=require('./Socket/index')
 
 app.use(express.json())
@@ -22,6 +23,7 @@ app.use(cors({
 app.use(morgan('dev'))
 app.use('/user',userRouter)
 app.use(authRouter)
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 server.listen(process.env.PORT,()=>{
     console.log(`server is running on port${process.env.PORT}`);
 
